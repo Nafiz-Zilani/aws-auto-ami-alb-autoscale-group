@@ -24,7 +24,7 @@ jobs:
           role-to-assume: arn:aws:iam::821999471331:role/github-packer-role
           aws-region: ${{ env.AWS_REGION }}
 
-      - uses: hashicorp/setup-packer@main
+      - uses: hashicorp/setup-packer@v3
 
       - name: Build AMI
         run: |
