@@ -1,0 +1,51 @@
+name: Build AMI and deploy
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ap-southeast-1
+  LT_ID: lt-REPLACE_ME
+  ASG_NAME: myapp-asg
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::<ACCOUNT_ID>:role/github-packer-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-packer@main
+
+      - name: Build AMI
+        run: |
+          packer init packer/
+          packer build -var "git_sha=${GITHUB_SHA::7}" packer/
+
+      - name: Get AMI ID
+        run: |
+          AMI_ID=$(jq -r '.builds[-1].artifact_id' manifest.json | cut -d: -f2)
+          echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
+          echo "New AMI: $AMI_ID"
+
+      - name: New Launch Template version
+        run: |
+          aws ec2 create-launch-template-version \
+            --launch-template-id $LT_ID \
+            --source-version '$Latest' \
+            --launch-template-data "{\"ImageId\":\"$AMI_ID\"}"
+
+      - name: Roll out to Auto Scaling Group
+        run: |
+          aws autoscaling start-instance-refresh \
+            --auto-scaling-group-name $ASG_NAME \
+            --preferences '{"MinHealthyPercentage":50,"InstanceWarmup":120}'

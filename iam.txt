@@ -1,0 +1,33 @@
+1. IAM > Identity Provider > Add Provider > OpenID Connect > Provider URL(https://token.actions.githubusercontent.com) > Audience (sts.amazonaws.com) > Add Provider
+
+2. IAM > Roles > Create role > Select - Web Identity > Web Identity (token.actions.githubusercontent.com) > Audience (sts.amazonaws.com) > github Organization (Nafiz-Zilani) > Create inline policy
+
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Action": [
+      "ec2:*",
+      "autoscaling:StartInstanceRefresh",
+      "autoscaling:DescribeInstanceRefreshes",
+      "autoscaling:DescribeAutoScalingGroups"
+    ],
+    "Resource": "*"
+  }]
+}
+
+> role name (github-packer-role) > IAM > Role (github-packer-role) > Edit trust policy 
+
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Principal": { "Federated": "arn:aws:iam::821999471331:oidc-provider/token.actions.githubusercontent.com" },
+    "Action": "sts:AssumeRoleWithWebIdentity",
+    "Condition": {
+      "StringEquals": { "token.actions.githubusercontent.com:aud": "sts.amazonaws.com" },
+      "StringLike":   { "token.actions.githubusercontent.com:sub": "repo:Nafiz-Zilani/aws-auto-ami-alb-autoscale-group:ref:refs/heads/main" }
+    }
+  }]
+}
+
