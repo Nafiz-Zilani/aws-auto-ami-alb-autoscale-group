@@ -21,7 +21,7 @@ jobs:
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::<ACCOUNT_ID>:role/github-packer-role
+          role-to-assume: arn:aws:iam::821999471331:role/github-packer-role
           aws-region: ${{ env.AWS_REGION }}
 
       - uses: hashicorp/setup-packer@main
