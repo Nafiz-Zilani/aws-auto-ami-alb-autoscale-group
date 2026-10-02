@@ -40,9 +40,14 @@ source "amazon-ebs" "app" {
 build {
   sources = ["source.amazon-ebs.app"]
 
+  # create the folder first
+  provisioner "shell" {
+    inline = ["mkdir -p /tmp/app"]
+  }
+
   provisioner "file" {
     source      = "app/"
-    destination = "/tmp/app"
+    destination = "/tmp/app/"
   }
 
   provisioner "shell" {

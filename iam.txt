@@ -26,7 +26,12 @@
     "Action": "sts:AssumeRoleWithWebIdentity",
     "Condition": {
       "StringEquals": { "token.actions.githubusercontent.com:aud": "sts.amazonaws.com" },
-      "StringLike":   { "token.actions.githubusercontent.com:sub": "repo:Nafiz-Zilani/aws-auto-ami-alb-autoscale-group:ref:refs/heads/main" }
+      "StringLike": {
+        "token.actions.githubusercontent.com:sub": [
+          "repo:Nafiz-Zilani@59993993/aws-auto-ami-alb-autoscale-group@1402421106:ref:refs/heads/main",
+          "repo:Nafiz-Zilani/aws-auto-ami-alb-autoscale-group:ref:refs/heads/main"
+        ]
+      }
     }
   }]
 }
